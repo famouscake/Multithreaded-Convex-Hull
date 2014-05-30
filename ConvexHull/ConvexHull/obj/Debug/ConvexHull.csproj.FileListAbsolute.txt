@@ -1,0 +1,10 @@
+D:\projects\C-Threading\ConvexHull\ConvexHull\bin\Debug\ConvexHull.exe.config
+D:\projects\C-Threading\ConvexHull\ConvexHull\bin\Debug\ConvexHull.exe
+D:\projects\C-Threading\ConvexHull\ConvexHull\bin\Debug\ConvexHull.pdb
+D:\projects\C-Threading\ConvexHull\ConvexHull\obj\Debug\ConvexHull.exe
+D:\projects\C-Threading\ConvexHull\ConvexHull\obj\Debug\ConvexHull.pdb
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\bin\Debug\ConvexHull.exe.config
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\obj\Debug\ConvexHull.exe
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\obj\Debug\ConvexHull.pdb
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\bin\Debug\ConvexHull.exe
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\bin\Debug\ConvexHull.pdb
