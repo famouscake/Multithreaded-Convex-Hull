@@ -3,46 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ConvexHull.Utils;
 
 namespace ConverHull
 {
 
-    class Point
-    {
-        public double x;
-        public double y;
-        public int index;
-        public Point next;
-        public Point prev;
-
-        public Point(double x, double y, int index)
-        {
-            this.x = x;
-            this.y = y;
-            this.index = index;
-            this.next = null;
-            this.prev = null;
-        }
-
-        static double Distance(Point a, Point b)
-        {
-            return Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
-        }
-
-        static public double getScalarGz(Point a, Point b, Point c)
-        {
-            return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
-        }
-    }
-
-
-
-
-
     class Program
     {
-
-        //int check (System.Drawing.)
 
         static public int getLeftMost(List<Point> S)
         {
@@ -111,7 +78,7 @@ namespace ConverHull
             {
                 // Console.WriteLine("With : " + U[i].index + " " + Point.getScalarGz(a, b, U[i]) * direction);
 
-                double x = Point.getScalarGz(a, b, U[i]);
+                double x = Vector.getCrossProductZ(a, b, U[i]);
 
                 if (modifier == 1 && x > 0)
                     return false;

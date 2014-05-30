@@ -8,3 +8,4 @@ D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\obj\Debug\ConvexHull
 D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\obj\Debug\ConvexHull.pdb
 D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\bin\Debug\ConvexHull.exe
 D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\bin\Debug\ConvexHull.pdb
+D:\projects\Multithreaded-Convex-Hull\ConvexHull\ConvexHull\obj\Debug\ConvexHull.csprojResolveAssemblyReference.cache
