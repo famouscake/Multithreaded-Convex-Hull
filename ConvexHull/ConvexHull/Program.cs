@@ -22,7 +22,7 @@ namespace ConverHull
 
             for (int i = 0; i < pointLimit; i++)
             {
-                
+
                 U.Add(new Point(r.Next(maxValue), r.Next(maxValue)));
 
                 a.Append(U[i].X.ToString());
@@ -112,112 +112,81 @@ namespace ConverHull
             }
         }
 
-
+        // A is the left Convex Hull B is the right Convex Hull
         static public List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
-        {           
+        {
+            bool debug = true;
 
+            // The rightmost point in A and the leftmost point in B are origins for the tangent search
             HullPoint rightA = A.Max();
             HullPoint leftB = B.Min();
 
-
-
-            Console.WriteLine();
-            Console.Write("\n\n## In A is : ");
-            foreach (HullPoint x in A)
-                Console.Write(x.index + " ");
-            Console.Write("\n## In B is : ");
-            foreach (HullPoint x in B)
-                Console.Write(x.index + " ");
-
-            Console.WriteLine();
-
-
-            HullPoint a2, b2;
-            a2 = rightA;
-            b2 = leftB;
-
-            while (true)
-            {
-                Console.WriteLine("Upper");
-                Console.WriteLine("a2 - " + a2.index + " b2 - " + b2.index);
-
-                // Case 1
-                b2 = findTangent(a2, b2, B, 1, 1);
-                Console.WriteLine("New B is : " + b2.index);
-
-                // Case 4
-                if (isTangent(b2, a2, A, 4)) break;
-
-
-                // Case 4
-                a2 = findTangent(b2, a2, A, -1, 4);
-                Console.WriteLine("New A is : " + a2.index);
-
-                // Case 1
-                if (isTangent(a2, b2, B, 1)) break;
-            }
-
-            Console.WriteLine("\n***Upper tangent is : " + a2.index + " " + b2.index);
-
-
-
-            HullPoint a = rightA;
-            HullPoint b = leftB;
-
-            while (true)
+            if (debug)
             {
                 Console.WriteLine();
-                Console.WriteLine("a - " + a.index + " b - " + b.index);
-
-
-                // 2
-                b = findTangent(a, b, B, -1, 2);
-
-                Console.WriteLine("New B is : " + b.index);
-
-                // 3
-                if (isTangent(b, a, A, 3))
-                {
-                    Console.WriteLine("af");
-                    break;
-                }
-
-                // 3
-                a = findTangent(b, a, A, 1, 3);
-
-                // 2
-                if (isTangent(a, b, B, 2)) break;
-
-                Console.WriteLine("fasdf");
-
+                Console.Write("\n\n## In A is : \n");
+                foreach (HullPoint point in A)
+                    Console.WriteLine(point.index + " " + point.X + ", " + point.Y);
+                Console.Write("\n## In B is : \n");
+                foreach (HullPoint point in B)
+                    Console.WriteLine(point.index + " " + point.X + ", " + point.Y);
+                Console.WriteLine();
             }
 
-            Console.WriteLine("\n*** Lower tangent is : " + a.index + " " + b.index);
+            // a and b are temporary variables for finding the upper tangent
+            HullPoint a = rightA, b = leftB;
+            while (true)
+            {
+                // Clockwise, Case 1
+                b = findTangent(a, b, B, 1, 1);
 
+                // Case 4
+                if (isTangent(b, a, A, 4)) break;
 
+                // Counterclockwise, Case 4
+                a = findTangent(b, a, A, -1, 4);
 
-            a.prev = b;
-            b.next = a;
+                // Case 1
+                if (isTangent(a, b, B, 1)) break;
+            }
+            HullPoint topA = a, topB = b;
+            if (debug) Console.WriteLine("\n***Upper tangent is : " + a.index + " " + b.index);
 
-            a2.next = b2;
-            b2.prev = a2;
+            // a and b are temporary variables for finding the bottom tangent
+            a = rightA; b = leftB;
+            while (true)
+            {
+                // Counterclockwise, Case 2
+                b = findTangent(a, b, B, -1, 2);
 
-            List<HullPoint> P = new List<HullPoint>();
+                // Case 3
+                if (isTangent(b, a, A, 3)) break;
 
-            HullPoint r = a;
+                // Clockwise, Case 3
+                a = findTangent(b, a, A, 1, 3);
 
+                // Case 2
+                if (isTangent(a, b, B, 2)) break;
+            }
+            HullPoint bottomA = a, bottomB = b;
+            if (debug) Console.WriteLine("\n*** Lower tangent is : " + a.index + " " + b.index);
 
-            Console.Write("\n\nThe run is : \n");
+            topA.next = topB; topB.prev = topA;
+
+            bottomA.prev = bottomB; bottomB.next = bottomA;
+
+            List<HullPoint> U = new List<HullPoint>();
+
+            HullPoint x = a;
+            if (debug) Console.Write("\n\nThe run is : \n");
             do
             {
-                P.Add(r);
-                Console.Write(r.X + ", " + r.Y + Environment.NewLine);
-                r = r.next;
-            } while (r != a);
+                U.Add(x);
+                if (debug) Console.Write(x.X + ", " + x.Y + Environment.NewLine);
+                x = x.next;
+            } while (x != a);
 
-            Console.WriteLine();
-
-            return P;
+            return U;
         }
 
 
@@ -272,7 +241,7 @@ namespace ConverHull
                 SS.Add(new HullPoint(S[i].X, S[i].Y, i));
             }
 
-             f(SS, 0, S.Count - 1);
+            f(SS, 0, S.Count - 1);
 
         }
 
@@ -286,12 +255,12 @@ namespace ConverHull
             //pointLimit = Convert.ToInt32(Console.ReadLine());
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
-           
+
             S = generatePoints(pointLimit, 100000);
 
             init(S);
 
-           
+
 
 
 
