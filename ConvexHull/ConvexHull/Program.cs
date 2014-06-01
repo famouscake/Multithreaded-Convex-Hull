@@ -171,10 +171,13 @@ namespace ConverHull
             HullPoint bottomA = a, bottomB = b;
             if (debug) Console.WriteLine("\n*** Lower tangent is : " + a.index + " " + b.index);
 
+
+            // "Stiching" up the top and bottom of the two Convex Hulls together
             topA.next = topB; topB.prev = topA;
 
             bottomA.prev = bottomB; bottomB.next = bottomA;
 
+            // The Union of both convex hull can be found by starting at any of the Tangent points and walking untill the same point is reached again
             List<HullPoint> U = new List<HullPoint>();
 
             HullPoint x = a;
@@ -190,41 +193,39 @@ namespace ConverHull
         }
 
 
-        static public List<HullPoint> f(List<HullPoint> S, int l, int r)
+        static public List<HullPoint> ComputeCovexHull(List<HullPoint> S, int l, int r)
         {
+            // Base case with 1 point is a Simple Convex Hull
             if (r - l + 1 == 1)
             {
-                List<HullPoint> A = new List<HullPoint>();
-                A.Add(S[l]);
-                A[0].next = A[0];
-                A[0].prev = A[0];
-                return A;
+                List<HullPoint> C = new List<HullPoint>();
+                C.Add(S[l]);
+                C[0].next = C[0];
+                C[0].prev = C[0];
+                return C;
             }
 
+            // Base case with 2 points is a Convex Hull with both of them
             if (r - l + 1 == 2)
             {
-                List<HullPoint> A = new List<HullPoint>();
+                List<HullPoint> C = new List<HullPoint>();
 
-                A.Add(S[l]);
-                A.Add(S[r]);
+                C.Add(S[l]); C.Add(S[r]);
 
-                A[0].next = A[1];
-                A[0].prev = A[1];
+                // Important they have to be linked together
+                C[0].next = C[1]; C[0].prev = C[1];
 
-                A[1].next = A[0];
-                A[1].prev = A[0];
+                C[1].next = C[0]; C[1].prev = C[0];
 
-                return A;
+                return C;
             }
 
             int mid = (l + r) / 2;
 
-            Console.WriteLine("---------------------------------------------------" + (r - l + 1));
+            List<HullPoint> A = ComputeCovexHull(S, l, mid);
+            List<HullPoint> B = ComputeCovexHull(S, mid + 1, r);
 
-            List<HullPoint> S1 = f(S, l, mid);
-            List<HullPoint> S2 = f(S, mid + 1, r);
-
-            return combine(S1, S2);
+            return combine(A, B);
         }
 
 
@@ -241,7 +242,7 @@ namespace ConverHull
                 SS.Add(new HullPoint(S[i].X, S[i].Y, i));
             }
 
-            f(SS, 0, S.Count - 1);
+            ComputeCovexHull(SS, 0, S.Count - 1);
 
         }
 
