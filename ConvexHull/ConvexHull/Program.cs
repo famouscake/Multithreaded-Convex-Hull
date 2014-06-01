@@ -1,17 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ConvexHull.Utils;
+using System.ComponentModel;
 
 namespace ConverHull
 {
 
     class Program
     {
+        static private List<Point> generatePoints(int pointLimit, int maxValue)
+        {
+            List<Point> U = new List<Point>();
 
-        static public int getLeftMost(List<Point> S)
+            Random r = new Random();
+
+            StringBuilder a = new StringBuilder();
+
+            for (int i = 0; i < pointLimit; i++)
+            {
+                
+                U.Add(new Point(r.Next(maxValue), r.Next(maxValue)));
+
+                a.Append(U[i].X.ToString());
+                a.Append(", ");
+                a.Append(U[i].Y.ToString());
+                a.Append(Environment.NewLine);
+            }
+
+            System.IO.File.WriteAllText(@"D:\output.txt", a.ToString());
+
+            return U;
+        }
+
+        static public int getLeftMost(List<HullPoint> S)
         {
             int x = 0;
 
@@ -24,7 +49,7 @@ namespace ConverHull
             }
             return x;
         }
-        static public int getRightMost(List<Point> S)
+        static public int getRightMost(List<HullPoint> S)
         {
             int x = 0;
 
@@ -72,7 +97,7 @@ namespace ConverHull
 
 
         // Case 1 and 4
-        public static bool isTangent(Point a, Point b, List<Point> U, int modifier)
+        public static bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int modifier)
         {
             for (int i = 0; i < U.Count; i++)
             {
@@ -99,7 +124,7 @@ namespace ConverHull
         }
 
 
-        static public Point findTangent(Point a, Point b, List<Point> U, int direction, int modifier)
+        static public HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int modifier)
         {
             while (true)
             {
@@ -115,7 +140,7 @@ namespace ConverHull
         }
 
 
-        static public List<Point> combine(List<Point> A, List<Point> B)
+        static public List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
         {
             int rightA = getRightMost(A);
             int leftB = getLeftMost(B);
@@ -124,16 +149,16 @@ namespace ConverHull
 
             Console.WriteLine();
             Console.Write("\n\n## In A is : ");
-            foreach (Point x in A)
+            foreach (HullPoint x in A)
                 Console.Write(x.index + " ");
             Console.Write("\n## In B is : ");
-            foreach (Point x in B)
+            foreach (HullPoint x in B)
                 Console.Write(x.index + " ");
 
             Console.WriteLine();
 
 
-            Point a2, b2;
+            HullPoint a2, b2;
             a2 = A[rightA];
             b2 = B[leftB];
 
@@ -162,8 +187,8 @@ namespace ConverHull
 
 
 
-            Point a = A[rightA];
-            Point b = B[leftB];
+            HullPoint a = A[rightA];
+            HullPoint b = B[leftB];
 
             while (true)
             {
@@ -203,16 +228,16 @@ namespace ConverHull
             a2.next = b2;
             b2.prev = a2;
 
-            List<Point> P = new List<Point>();
+            List<HullPoint> P = new List<HullPoint>();
 
-            Point r = a;
+            HullPoint r = a;
 
 
-            Console.Write("\n\nThe run is : ");
+            Console.Write("\n\nThe run is : \n");
             do
             {
                 P.Add(r);
-                Console.Write(r.index + " ( " + r.x + " , " + r.y + " ) " + Environment.NewLine);
+                Console.Write(r.x + ", " + r.y + Environment.NewLine);
                 r = r.next;
             } while (r != a);
 
@@ -222,11 +247,11 @@ namespace ConverHull
         }
 
 
-        static public List<Point> f(List<Point> S, int l, int r)
+        static public List<HullPoint> f(List<HullPoint> S, int l, int r)
         {
             if (r - l + 1 == 1)
             {
-                List<Point> A = new List<Point>();
+                List<HullPoint> A = new List<HullPoint>();
                 A.Add(S[l]);
                 A[0].next = A[0];
                 A[0].prev = A[0];
@@ -235,7 +260,7 @@ namespace ConverHull
 
             if (r - l + 1 == 2)
             {
-                List<Point> A = new List<Point>();
+                List<HullPoint> A = new List<HullPoint>();
 
                 A.Add(S[l]);
                 A.Add(S[r]);
@@ -253,35 +278,46 @@ namespace ConverHull
 
             Console.WriteLine("---------------------------------------------------" + (r - l + 1));
 
-            List<Point> S1 = f(S, l, mid);
-            List<Point> S2 = f(S, mid + 1, r);
+            List<HullPoint> S1 = f(S, l, mid);
+            List<HullPoint> S2 = f(S, mid + 1, r);
 
             return combine(S1, S2);
         }
 
+
+        static void init(List<Point> S)
+        {
+            S.Sort(delegate(Point a, Point b) { return a.X.CompareTo(b.X); });
+
+            printS(S);
+
+            List<HullPoint> SS = new List<HullPoint>();
+
+            for (int i = 0; i < S.Count; i++)
+            {
+                SS.Add(new HullPoint(S[i].X, S[i].Y, i));
+
+            }
+
+                f(SS, 0, S.Count - 1);
+
+        }
 
 
 
         static void Main(string[] args)
         {
             List<Point> S = new List<Point>();
+            int pointLimit = 1000;
 
-            int N;
+            //pointLimit = Convert.ToInt32(Console.ReadLine());
+            //for (int i = 0; i < pointLimit; i++)
+            //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
+            S = generatePoints(pointLimit, 100000);
 
-            N = Convert.ToInt32(Console.ReadLine());
+            init(S);
 
-            Console.WriteLine(N);
-
-
-            for (int i = 0; i < N; i++)
-            {
-                S.Add(new Point(Convert.ToDouble(Console.ReadLine()), Convert.ToDouble(Console.ReadLine()), i));
-            }
-
-            printS(S);
-            S.Sort(delegate(Point a, Point b) { return a.x.CompareTo(b.x); });
-            printS(S);
-            f(S, 0, 9);
+           
 
 
 
@@ -294,9 +330,12 @@ namespace ConverHull
 
         static void printS(List<Point> S)
         {
+            System.IO.File.WriteAllText("D:/points.txt", " ");
             for (int i = 0; i < S.Count; i++)
             {
-                Console.WriteLine(i + " (" + S[i].x + " , " + S[i].y + ")");
+                //Console.WriteLine(S[i].X + ", " + S[i].Y);
+                System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
+
             }
         }
     }
