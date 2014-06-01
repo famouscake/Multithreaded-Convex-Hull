@@ -4,17 +4,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ConvexHull.Utils;
 using System.ComponentModel;
+using ConvexHull;
 
 namespace ConverHull
 {
 
     class Program
     {
-        static private List<Point> generatePoints(int pointLimit, int maxValue)
+        static private List<PointF> generatePoints(int pointLimit, int maxValue)
         {
-            List<Point> U = new List<Point>();
+            List<PointF> U = new List<PointF>();
 
             Random r = new Random();
 
@@ -23,7 +23,7 @@ namespace ConverHull
             for (int i = 0; i < pointLimit; i++)
             {
 
-                U.Add(new Point(r.Next(maxValue), r.Next(maxValue)));
+                U.Add(new PointF(Convert.ToSingle(r.NextDouble()*maxValue), Convert.ToSingle(r.NextDouble()*maxValue)));
 
                 a.Append(U[i].X.ToString());
                 a.Append(", ");
@@ -36,221 +36,11 @@ namespace ConverHull
             return U;
         }
 
-        static public int getLeftMost(List<HullPoint> S)
-        {
-            int x = 0;
-
-            for (int i = 0; i < S.Count; i++)
-            {
-                if (S[x].X > S[i].X)
-                {
-                    x = i;
-                }
-            }
-            return x;
-        }
-        static public int getRightMost(List<HullPoint> S)
-        {
-            int x = 0;
-
-            for (int i = 0; i < S.Count; i++)
-            {
-                if (S[x].X < S[i].X)
-                {
-                    x = i;
-                }
-            }
-            return x;
-        }
-
-
-
-
-
-
-
-        // Case 1 and 4
-        public static bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int modifier)
-        {
-            for (int i = 0; i < U.Count; i++)
-            {
-                // Console.WriteLine("With : " + U[i].index + " " + Point.getScalarGz(a, b, U[i]) * direction);
-
-                double x = Vector.getCrossProductZ(a, b, U[i]);
-
-                if (modifier == 1 && x > 0)
-                    return false;
-
-                if (modifier == 2 && x < 0)
-                    return false;
-
-                if (modifier == 3 && x > 0)
-                    return false;
-
-                if (modifier == 4 && x < 0)
-                    return false;
-            }
-
-            return true;
-
-
-        }
-
-
-        static public HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int modifier)
-        {
-            while (true)
-            {
-                if (isTangent(a, b, U, modifier)) return b;
-
-                Console.WriteLine(b.index);
-
-                if (direction == 1)
-                    b = b.next;
-                else
-                    b = b.prev;
-            }
-        }
-
-        // A is the left Convex Hull B is the right Convex Hull
-        static public List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
-        {
-            bool debug = true;
-
-            // The rightmost point in A and the leftmost point in B are origins for the tangent search
-            HullPoint rightA = A.Max();
-            HullPoint leftB = B.Min();
-
-            if (debug)
-            {
-                Console.WriteLine();
-                Console.Write("\n\n## In A is : \n");
-                foreach (HullPoint point in A)
-                    Console.WriteLine(point.index + " " + point.X + ", " + point.Y);
-                Console.Write("\n## In B is : \n");
-                foreach (HullPoint point in B)
-                    Console.WriteLine(point.index + " " + point.X + ", " + point.Y);
-                Console.WriteLine();
-            }
-
-            // a and b are temporary variables for finding the upper tangent
-            HullPoint a = rightA, b = leftB;
-            while (true)
-            {
-                // Clockwise, Case 1
-                b = findTangent(a, b, B, 1, 1);
-
-                // Case 4
-                if (isTangent(b, a, A, 4)) break;
-
-                // Counterclockwise, Case 4
-                a = findTangent(b, a, A, -1, 4);
-
-                // Case 1
-                if (isTangent(a, b, B, 1)) break;
-            }
-            HullPoint topA = a, topB = b;
-            if (debug) Console.WriteLine("\n***Upper tangent is : " + a.index + " " + b.index);
-
-            // a and b are temporary variables for finding the bottom tangent
-            a = rightA; b = leftB;
-            while (true)
-            {
-                // Counterclockwise, Case 2
-                b = findTangent(a, b, B, -1, 2);
-
-                // Case 3
-                if (isTangent(b, a, A, 3)) break;
-
-                // Clockwise, Case 3
-                a = findTangent(b, a, A, 1, 3);
-
-                // Case 2
-                if (isTangent(a, b, B, 2)) break;
-            }
-            HullPoint bottomA = a, bottomB = b;
-            if (debug) Console.WriteLine("\n*** Lower tangent is : " + a.index + " " + b.index);
-
-
-            // "Stiching" up the top and bottom of the two Convex Hulls together
-            topA.next = topB; topB.prev = topA;
-
-            bottomA.prev = bottomB; bottomB.next = bottomA;
-
-            // The Union of both convex hull can be found by starting at any of the Tangent points and walking untill the same point is reached again
-            List<HullPoint> U = new List<HullPoint>();
-
-            HullPoint x = a;
-            if (debug) Console.Write("\n\nThe run is : \n");
-            do
-            {
-                U.Add(x);
-                if (debug) Console.Write(x.X + ", " + x.Y + Environment.NewLine);
-                x = x.next;
-            } while (x != a);
-
-            return U;
-        }
-
-
-        static public List<HullPoint> ComputeCovexHull(List<HullPoint> S, int l, int r)
-        {
-            // Base case with 1 point is a Simple Convex Hull
-            if (r - l + 1 == 1)
-            {
-                List<HullPoint> C = new List<HullPoint>();
-                C.Add(S[l]);
-                C[0].next = C[0];
-                C[0].prev = C[0];
-                return C;
-            }
-
-            // Base case with 2 points is a Convex Hull with both of them
-            if (r - l + 1 == 2)
-            {
-                List<HullPoint> C = new List<HullPoint>();
-
-                C.Add(S[l]); C.Add(S[r]);
-
-                // Important they have to be linked together
-                C[0].next = C[1]; C[0].prev = C[1];
-
-                C[1].next = C[0]; C[1].prev = C[0];
-
-                return C;
-            }
-
-            int mid = (l + r) / 2;
-
-            List<HullPoint> A = ComputeCovexHull(S, l, mid);
-            List<HullPoint> B = ComputeCovexHull(S, mid + 1, r);
-
-            return combine(A, B);
-        }
-
-
-        static void init(List<Point> S)
-        {
-            S.Sort(delegate(Point a, Point b) { return a.X.CompareTo(b.X); });
-
-            printS(S);
-
-            List<HullPoint> SS = new List<HullPoint>();
-
-            for (int i = 0; i < S.Count; i++)
-            {
-                SS.Add(new HullPoint(S[i].X, S[i].Y, i));
-            }
-
-            ComputeCovexHull(SS, 0, S.Count - 1);
-
-        }
-
 
 
         static void Main(string[] args)
         {
-            List<Point> S = new List<Point>();
+            List<PointF> S = new List<PointF>();
             int pointLimit = 1000;
 
             //pointLimit = Convert.ToInt32(Console.ReadLine());
@@ -259,13 +49,7 @@ namespace ConverHull
 
             S = generatePoints(pointLimit, 100000);
 
-            init(S);
-
-
-
-
-
-
+            ConvexHullAlgorithm.Compute(S);
 
 
             Console.Write("\n\nPress any key to exit ...");

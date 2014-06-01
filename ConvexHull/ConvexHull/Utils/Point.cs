@@ -8,15 +8,15 @@ namespace ConvexHull.Utils
 {
     class HullPoint : IComparable<HullPoint>
     {
-        public double X;
-        public double Y;
+        public float X;
+        public float Y;
         
         public int index;
 
         public HullPoint next;
         public HullPoint prev;
 
-        public HullPoint(double x, double y, int index)
+        public HullPoint(float x, float y, int index)
         {
             this.X = x;
             this.Y = y;
