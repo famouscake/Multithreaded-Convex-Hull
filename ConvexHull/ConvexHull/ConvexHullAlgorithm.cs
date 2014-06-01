@@ -46,45 +46,29 @@ namespace ConvexHull
 
         }
 
-        // Case 1 and 4
-        public static bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int modifier)
+        // orientation -1 : for vectors counterclockwise of a->b 
+        // orientation  1 : for vectors clockwise of a->b
+
+        // To see if a->b is a tangent we must see in all the points of U lie on either of the half planes defined by a->b
+        // We use the Z coordinate of a->b and a->c cross product. We require all for points of U that to be > 0 (unless a->c is counterclockwise to a->b)
+        public static bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int orientation)
         {
-            for (int i = 0; i < U.Count; i++)
-            {
-                // Console.WriteLine("With : " + U[i].index + " " + Point.getScalarGz(a, b, U[i]) * direction);
-
-                double x = Vector.getCrossProductZ(a, b, U[i]);
-
-                if (modifier == 1 && x > 0)
+            for (int i = 0; i < U.Count; i++)            
+                if (Vector.getCrossProductZ(a, b, U[i]) * orientation > 0)
                     return false;
-
-                if (modifier == 2 && x < 0)
-                    return false;
-
-                if (modifier == 3 && x > 0)
-                    return false;
-
-                if (modifier == 4 && x < 0)
-                    return false;
-            }
-
             return true;
-
         }
 
+        // direction -1 : counterclockwise
+        // direction  1 : clockwise
 
-        static public HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int modifier)
+        // Simply walk along U in the given direction untill a tangent is found. That is guaranteed to happen!
+        static public HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int orientation)
         {
             while (true)
             {
-                if (isTangent(a, b, U, modifier)) return b;
-
-                Console.WriteLine(b.index);
-
-                if (direction == 1)
-                    b = b.next;
-                else
-                    b = b.prev;
+                if (isTangent(a, b, U, orientation)) return b;
+                b = direction == 1 ? b.next : b.prev;
             }
         }
 
@@ -117,10 +101,10 @@ namespace ConvexHull
                 b = findTangent(a, b, B, 1, 1);
 
                 // Case 4
-                if (isTangent(b, a, A, 4)) break;
+                if (isTangent(b, a, A, -1)) break;
 
                 // Counterclockwise, Case 4
-                a = findTangent(b, a, A, -1, 4);
+                a = findTangent(b, a, A, -1, -1);
 
                 // Case 1
                 if (isTangent(a, b, B, 1)) break;
@@ -133,16 +117,16 @@ namespace ConvexHull
             while (true)
             {
                 // Counterclockwise, Case 2
-                b = findTangent(a, b, B, -1, 2);
+                b = findTangent(a, b, B, -1, -1);
 
                 // Case 3
-                if (isTangent(b, a, A, 3)) break;
+                if (isTangent(b, a, A, 1)) break;
 
                 // Clockwise, Case 3
-                a = findTangent(b, a, A, 1, 3);
+                a = findTangent(b, a, A, 1, 1);
 
                 // Case 2
-                if (isTangent(a, b, B, 2)) break;
+                if (isTangent(a, b, B, -1)) break;
             }
             HullPoint bottomA = a, bottomB = b;
             if (debug) Console.WriteLine("\n*** Lower tangent is : " + a.index + " " + b.index);
@@ -205,7 +189,7 @@ namespace ConvexHull
         }
 
 
-       
+
 
 
     }
