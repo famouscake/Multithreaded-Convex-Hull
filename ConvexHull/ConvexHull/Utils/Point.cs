@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace ConvexHull.Utils
 {
-    class HullPoint
+    class HullPoint : IComparable<HullPoint>
     {
-        public double x;
-        public double y;
+        public double X;
+        public double Y;
         
         public int index;
 
@@ -18,16 +18,21 @@ namespace ConvexHull.Utils
 
         public HullPoint(double x, double y, int index)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
             this.index = index;
             this.next = this;
             this.prev = this;
         }
 
+        public int CompareTo(HullPoint that)
+        {
+            return this.X.CompareTo(that.X);
+        }
+
         static double Distance(HullPoint a, HullPoint b)
         {
-            return Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+            return Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
         }        
     }
 
@@ -43,7 +48,7 @@ namespace ConvexHull.Utils
 
         static public double getCrossProductZ(HullPoint a, HullPoint b, HullPoint c)
         {
-            return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+            return (b.X - a.X) * (c.Y - a.Y) - (c.X - a.X) * (b.Y - a.Y);
         }      
     }
 }

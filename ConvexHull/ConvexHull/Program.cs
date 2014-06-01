@@ -42,7 +42,7 @@ namespace ConverHull
 
             for (int i = 0; i < S.Count; i++)
             {
-                if (S[x].x > S[i].x)
+                if (S[x].X > S[i].X)
                 {
                     x = i;
                 }
@@ -55,7 +55,7 @@ namespace ConverHull
 
             for (int i = 0; i < S.Count; i++)
             {
-                if (S[x].x < S[i].x)
+                if (S[x].X < S[i].X)
                 {
                     x = i;
                 }
@@ -67,33 +67,6 @@ namespace ConverHull
 
 
 
-
-
-        //static public bool isTangent(Point a, Point b, List<Point> U)
-        //{
-        //    //Console.WriteLine("IS UPPER here at : " + a.index + " "+ b.index + " " + direction);
-
-
-        //    int countAbouve = 0;
-        //    int countBellow = 0;
-
-        //    for (int i = 0; i < U.Count; i++)
-        //    {
-        //        // Console.WriteLine("With : " + U[i].index + " " + Point.getScalarGz(a, b, U[i]) * direction);
-
-        //        if (Point.getScalarGz(a, b, U[i]) > 0)
-        //            countAbouve++;
-        //        else if (Point.getScalarGz(a, b, U[i]) < 0)
-        //            countBellow++;
-        //    }
-
-        //    if (countBellow > 0 && countAbouve > 0)
-        //    {
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
 
 
         // Case 1 and 4
@@ -141,9 +114,10 @@ namespace ConverHull
 
 
         static public List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
-        {
-            int rightA = getRightMost(A);
-            int leftB = getLeftMost(B);
+        {           
+
+            HullPoint rightA = A.Max();
+            HullPoint leftB = B.Min();
 
 
 
@@ -159,8 +133,8 @@ namespace ConverHull
 
 
             HullPoint a2, b2;
-            a2 = A[rightA];
-            b2 = B[leftB];
+            a2 = rightA;
+            b2 = leftB;
 
             while (true)
             {
@@ -187,8 +161,8 @@ namespace ConverHull
 
 
 
-            HullPoint a = A[rightA];
-            HullPoint b = B[leftB];
+            HullPoint a = rightA;
+            HullPoint b = leftB;
 
             while (true)
             {
@@ -237,7 +211,7 @@ namespace ConverHull
             do
             {
                 P.Add(r);
-                Console.Write(r.x + ", " + r.y + Environment.NewLine);
+                Console.Write(r.X + ", " + r.Y + Environment.NewLine);
                 r = r.next;
             } while (r != a);
 
@@ -296,10 +270,9 @@ namespace ConverHull
             for (int i = 0; i < S.Count; i++)
             {
                 SS.Add(new HullPoint(S[i].X, S[i].Y, i));
-
             }
 
-                f(SS, 0, S.Count - 1);
+             f(SS, 0, S.Count - 1);
 
         }
 
@@ -313,6 +286,7 @@ namespace ConverHull
             //pointLimit = Convert.ToInt32(Console.ReadLine());
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
+           
             S = generatePoints(pointLimit, 100000);
 
             init(S);
