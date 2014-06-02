@@ -12,55 +12,21 @@ namespace ConvexHull
     class ConvexHullAlgorithmMultithread
     {
         public int ThreadCount;
-        public List<PointF> InputPoints;
-        public List<PointF> OutputPoints;
-        public List<HullPoint> CircularOutputPoints;
+        public List<HullPoint> InputPoints;
+        public List<HullPoint> OutputPoints; 
 
-        static void printS(List<PointF> S)
-        {
-            System.IO.File.WriteAllText("D:/points.txt", " ");
-            for (int i = 0; i < S.Count; i++)
-            {
-                //Console.WriteLine(S[i].X + ", " + S[i].Y);
-                System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
-
-            }
-        }
-
-        public ConvexHullAlgorithmMultithread(List<PointF> InputPoints, int ThreadCount)
+        public ConvexHullAlgorithmMultithread(List<HullPoint> InputPoints, int ThreadCount)
         {
             this.ThreadCount = ThreadCount;
             this.InputPoints = InputPoints;
         }
 
-        public List<HullPoint> ConvertPointsToHullPoints(List<PointF> Points)
-        {
-            List<HullPoint> HullPoints = new List<HullPoint>();
-
-            for (int i = 0; i < Points.Count; i++)
-            {
-                HullPoints.Add(new HullPoint(Points[i].X, Points[i].Y, i));
-            }
-
-            return HullPoints;
-        }
-
-
-
-
         public void run()
-        {
-            //printS(InputPoints);
-
-            this.InputPoints.Sort(delegate(PointF a, PointF b) { return a.X.CompareTo(b.X); });
-
-            List<HullPoint> HullPoints = this.ConvertPointsToHullPoints(this.InputPoints);
-            List<HullPoint> U = new List<HullPoint>();
-
+        {    
 
             if (ThreadCount == 1)
             {
-                U = ComputeCovexHull(HullPoints, 0, InputPoints.Count - 1);
+                this.OutputPoints = ComputeCovexHull(this.InputPoints, 0, this.InputPoints.Count - 1);
             }
 
             if (ThreadCount == 2)
@@ -75,14 +41,15 @@ namespace ConvexHull
                 CharlieThread.Priority = ThreadPriority.AboveNormal;
                 CharlieThread.Start();
 
-                
 
-                B = this.ComputeCovexHull(HullPoints, mid + 1, InputPoints.Count - 1);
+                B = this.InputPoints.GetRange(mid + 1, InputPoints.Count - 1 - mid);
+                B = this.ComputeCovexHull(B, 0, B.Count-1);
+
                 CharlieThread.Join();
 
-                A = Charlie.CircularOutputPoints;
+                A = Charlie.OutputPoints;
 
-                U = this.combine(A, B);
+                this.OutputPoints = this.combine(A, B);
             }
 
             if (this.ThreadCount == 4)
@@ -93,7 +60,6 @@ namespace ConvexHull
                 int halfA = mid - l + 1;
                 int halfB = r - mid;
 
-
                 int l1 = l, r1 = mid, mid1 = (l1 + r1) / 2;
                 int halfA1 = mid1 - l1 + 1;
                 int halfB1 = r1 - mid1;
@@ -102,50 +68,27 @@ namespace ConvexHull
                 int halfA2 = mid2 - l2 + 1;
                 int halfB2 = r2 - mid2;
 
-
-
                 ConvexHullAlgorithmMultithread Charlie1 = new ConvexHullAlgorithmMultithread(this.InputPoints.GetRange(l1, halfA1), 1);
                 ConvexHullAlgorithmMultithread Charlie2 = new ConvexHullAlgorithmMultithread(this.InputPoints.GetRange(mid1 + 1, halfB1), 1);
                 ConvexHullAlgorithmMultithread Charlie3 = new ConvexHullAlgorithmMultithread(this.InputPoints.GetRange(l2, halfA2), 1);
 
 
                 Thread Charlie1Thread = new Thread(Charlie1.run);
-
                 Thread CharlieThread2 = new Thread(Charlie2.run);
-
                 Thread CharlieThread3 = new Thread(Charlie3.run);
 
                 Charlie1Thread.Start(); CharlieThread2.Start(); CharlieThread3.Start();
 
+                D = this.InputPoints.GetRange(mid2 + 1, halfB2);
+                D = this.ComputeCovexHull(D, 0, D.Count-1);
 
-                D = this.ComputeCovexHull(HullPoints, mid2 + 1, r);
 
                 Charlie1Thread.Join(); CharlieThread2.Join(); CharlieThread3.Join();
 
-                A = Charlie1.CircularOutputPoints; B = Charlie2.CircularOutputPoints; C = Charlie3.CircularOutputPoints;
+                A = Charlie1.OutputPoints; B = Charlie2.OutputPoints; C = Charlie3.OutputPoints;
 
-                U = combine(combine(A, B), combine(C, D));
-            }
-
-
-
-
-
-
-
-
-            HullPoint start = U.FirstOrDefault();
-
-            HullPoint x = start;
-
-            this.OutputPoints = new List<PointF>();
-            this.CircularOutputPoints = new List<HullPoint>();
-            do
-            {
-                this.CircularOutputPoints.Add(x);
-                this.OutputPoints.Add(new PointF(x.X, x.Y));
-                x = x.next;
-            } while (x != start);
+                this.OutputPoints = combine(combine(A, B), combine(C, D));
+            }            
         }
 
         // orientation -1 : for vectors counterclockwise of a->b 

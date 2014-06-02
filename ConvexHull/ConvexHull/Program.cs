@@ -8,6 +8,7 @@ using System.ComponentModel;
 using ConvexHull;
 using System.Diagnostics;
 using System.Threading;
+using ConvexHull.Utils;
 
 namespace ConverHull
 {
@@ -25,9 +26,9 @@ namespace ConverHull
             for (int i = 0; i < pointLimit; i++)
             {
 
-                U.Add(new PointF(Convert.ToSingle(r.NextDouble()*maxValue), Convert.ToSingle(r.NextDouble()*maxValue)));
+                U.Add(new PointF(Convert.ToSingle(r.NextDouble() * maxValue), Convert.ToSingle(r.NextDouble() * maxValue)));
 
-               // a.Append(U[i].X.ToString());
+                // a.Append(U[i].X.ToString());
                 //a.Append(", ");
                 //a.Append(U[i].Y.ToString());
                 //a.Append(Environment.NewLine);
@@ -42,81 +43,90 @@ namespace ConverHull
 
         static void Main(string[] args)
         {
+            // Mah Nigga
             ConvexHullAlgorithmMultithread Charlie;
-            List<PointF> S = new List<PointF>();
-            int pointLimit = 300;
-            Stopwatch stopwatch = new Stopwatch();
 
-            //pointLimit = Convert.ToInt32(Console.ReadLine());
+            // Hold the generated points
+            List<PointF> S = new List<PointF>();
+            int pointLimit = 1000000;
+
+            // Holds Empirical data
+            Stopwatch stopwatch = new Stopwatch();
+            List<TimeSpan> T = new List<TimeSpan>();
+            List<KeyValuePair<List<PointF>, string>> Results = new List<KeyValuePair<List<PointF>, string>>();
+
+
+            Console.Write("Please enter the number ot points to be generated : ");
+            pointLimit = Convert.ToInt32(Console.ReadLine());
+
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
 
-            S = generatePoints(pointLimit, 1000000);
+            S = generatePoints(pointLimit, 10000000);
+
+
+            // Step 1 : Sort all the points according to their X coordinate
+            S.Sort(delegate(PointF a, PointF b) { return a.X.CompareTo(b.X); });
+
+            // Step 2 : Convert all the points to HullPoints
+            List<HullPoint> Input = HullPoint.PointsToHullPoints(S);
 
             Console.WriteLine("The War begins!");
-            stopwatch.Start();
+
+            stopwatch.Start(); T.Add(stopwatch.Elapsed);
+
 
 
             System.Threading.Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
 
 
-            Charlie = new ConvexHullAlgorithmMultithread(S, 1);
+            // TEST 1 : 1 THREAD
+            Charlie = new ConvexHullAlgorithmMultithread(Input, 1);
             Charlie.run();
+            T.Add(stopwatch.Elapsed);
+            Results.Add(new KeyValuePair<List<PointF>, string>(HullPoint.HullPointsToPoints(Charlie.OutputPoints), "One Thread"));
 
 
-            printS(Charlie.OutputPoints);
-            TimeSpan lastTime = stopwatch.Elapsed;
-            Console.WriteLine("Time elapsed for ONE thread : {0}", stopwatch.Elapsed);
 
-
-            
-            
-            
-            Charlie = new ConvexHullAlgorithmMultithread(S, 2);
-            
+            // TEST 2 : 2 THREADS
+            Charlie = new ConvexHullAlgorithmMultithread(Input, 2);
             Charlie.run();
-            printS(Charlie.OutputPoints);
-            Console.WriteLine("Time elapsed for TWO threads : {0}", stopwatch.Elapsed - lastTime);
-            lastTime = stopwatch.Elapsed;
+            T.Add(stopwatch.Elapsed);
+            Results.Add(new KeyValuePair<List<PointF>, string>(HullPoint.HullPointsToPoints(Charlie.OutputPoints), "Two Thread"));
 
 
-
-
-            Charlie = new ConvexHullAlgorithmMultithread(S, 4);
-
+            // TEST 3 : 4 THREADS
+            Charlie = new ConvexHullAlgorithmMultithread(Input, 4);
             Charlie.run();
-            printS(Charlie.OutputPoints);
-            Console.WriteLine("Time elapsed for FOUR threads : {0}", stopwatch.Elapsed - lastTime);
+            T.Add(stopwatch.Elapsed);
+            Results.Add(new KeyValuePair<List<PointF>, string>(HullPoint.HullPointsToPoints(Charlie.OutputPoints), "Four Thread"));
 
 
 
-            //List<int> A = new List<int>();
 
-            //int N = 6;
+            for (int i = 0; i < Results.Count; i++)
+            {
+                Console.WriteLine("Test {0} {1} : {2}", i, Results[i].Value, T[i + 1] - T[i]);
+               // printS(Results[i].Key);
+                Console.WriteLine();
+            }
 
-            //for (int i = 1; i <= N ;i++ )
-            //{
-            //    A.Add(i);
-            //}
+
+            Console.WriteLine("Total time : " + stopwatch.Elapsed);
 
 
-            //foreach(var x in A.GetRange(0, 2))
-            //{
-            //    Console.WriteLine(x + " ");
-            //}
-
-                Console.Write("\n\nPress any key to exit ...");
+            Console.Write("\n\nPress any key to exit ...");
             Console.ReadLine();
         }
 
         static void printS(List<PointF> S)
         {
-            Console.WriteLine(Environment.NewLine);
+
             //System.IO.File.WriteAllText("D:/points.txt", " ");
             for (int i = 0; i < S.Count; i++)
             {
                 Console.WriteLine(S[i].X + ", " + S[i].Y);
-               // System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
+                // System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
 
             }
         }

@@ -1,0 +1,48 @@
+Please enter the number ot points to be generated : 10000000
+The War begins!
+Test 0 One Thread : 00:00:43.8238888
+
+Test 1 Two Thread : 00:00:27.8344832
+
+Test 2 Four Thread : 00:00:37.3584655
+
+Total time : 00:01:49.0177426
+
+/////////////////////////////////////////////////////////////////////
+
+Please enter the number ot points to be generated : 10000000
+The War begins!
+Test 0 One Thread : 00:00:44.4166101
+
+Test 1 Two Thread : 00:00:45.1654287
+
+Test 2 Four Thread : 00:00:29.3851347
+
+Total time : 00:01:58.9680454
+
+
+////////////////////////////////////////////////////////////////////
+
+Please enter the number ot points to be generated : 1000000
+The War begins!
+Test 0 One Thread : 00:00:01.0438694
+
+Test 1 Two Thread : 00:00:00.5326854
+
+Test 2 Four Thread : 00:00:00.3513479
+
+Total time : 00:00:01.9285859
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+Please enter the number ot points to be generated : 10000000
+The War begins!
+Test 0 One Thread : 00:00:10.2813958
+
+Test 1 Two Thread : 00:00:05.4804412
+
+Test 2 Four Thread : 00:00:03.3713676
+
+Total time : 00:00:19.1336840
