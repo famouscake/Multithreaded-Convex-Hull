@@ -41,15 +41,22 @@ namespace ConverHull
         static void Main(string[] args)
         {
             List<PointF> S = new List<PointF>();
-            int pointLimit = 1000;
+            int pointLimit = 100;
 
             //pointLimit = Convert.ToInt32(Console.ReadLine());
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
 
-            S = generatePoints(pointLimit, 100000);
+            S = generatePoints(pointLimit, 1000000);
 
-            S = ConvexHullAlgorithm.Compute(S);
+
+            ConvexHullAlgorithmMultithread Charlie = new ConvexHullAlgorithmMultithread(S);
+
+            Charlie.Compute();
+
+            
+
+            S = Charlie.OutputPoints;
 
             printS(S);
 
