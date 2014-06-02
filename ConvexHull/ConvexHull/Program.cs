@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.ComponentModel;
 using ConvexHull;
 using System.Diagnostics;
+using System.Threading;
 
 namespace ConverHull
 {
@@ -19,20 +20,20 @@ namespace ConverHull
 
             Random r = new Random();
 
-            StringBuilder a = new StringBuilder();
+            //StringBuilder a = new StringBuilder();
 
             for (int i = 0; i < pointLimit; i++)
             {
 
                 U.Add(new PointF(Convert.ToSingle(r.NextDouble()*maxValue), Convert.ToSingle(r.NextDouble()*maxValue)));
 
-                a.Append(U[i].X.ToString());
-                a.Append(", ");
-                a.Append(U[i].Y.ToString());
-                a.Append(Environment.NewLine);
+               // a.Append(U[i].X.ToString());
+                //a.Append(", ");
+                //a.Append(U[i].Y.ToString());
+                //a.Append(Environment.NewLine);
             }
 
-            System.IO.File.WriteAllText(@"D:\output.txt", a.ToString());
+            //System.IO.File.WriteAllText(@"D:\output.txt", a.ToString());
 
             return U;
         }
@@ -43,36 +44,49 @@ namespace ConverHull
         {
             ConvexHullAlgorithmMultithread Charlie;
             List<PointF> S = new List<PointF>();
-            int pointLimit = 1000000;
+            int pointLimit = 300;
             Stopwatch stopwatch = new Stopwatch();
 
             //pointLimit = Convert.ToInt32(Console.ReadLine());
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
 
-            S = generatePoints(pointLimit, 1000000000);
+            S = generatePoints(pointLimit, 1000000);
 
             Console.WriteLine("The War begins!");
             stopwatch.Start();
 
+
+            System.Threading.Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
 
 
             Charlie = new ConvexHullAlgorithmMultithread(S, 1);
             Charlie.run();
 
 
-            //printS(Charlie.OutputPoints);
+            printS(Charlie.OutputPoints);
             TimeSpan lastTime = stopwatch.Elapsed;
-            Console.WriteLine("Time elapsed for single thread : {0}", stopwatch.Elapsed);
+            Console.WriteLine("Time elapsed for ONE thread : {0}", stopwatch.Elapsed);
 
 
-
+            
+            
+            
             Charlie = new ConvexHullAlgorithmMultithread(S, 2);
+            
             Charlie.run();
+            printS(Charlie.OutputPoints);
+            Console.WriteLine("Time elapsed for TWO threads : {0}", stopwatch.Elapsed - lastTime);
+            lastTime = stopwatch.Elapsed;
 
 
-            //printS(Charlie.OutputPoints);
-            Console.WriteLine("Time elapsed for two threads: {0}", stopwatch.Elapsed - lastTime);
+
+
+            Charlie = new ConvexHullAlgorithmMultithread(S, 4);
+
+            Charlie.run();
+            printS(Charlie.OutputPoints);
+            Console.WriteLine("Time elapsed for FOUR threads : {0}", stopwatch.Elapsed - lastTime);
 
 
 
@@ -98,11 +112,11 @@ namespace ConverHull
         static void printS(List<PointF> S)
         {
             Console.WriteLine(Environment.NewLine);
-            System.IO.File.WriteAllText("D:/points.txt", " ");
+            //System.IO.File.WriteAllText("D:/points.txt", " ");
             for (int i = 0; i < S.Count; i++)
             {
                 Console.WriteLine(S[i].X + ", " + S[i].Y);
-                System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
+               // System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
 
             }
         }
