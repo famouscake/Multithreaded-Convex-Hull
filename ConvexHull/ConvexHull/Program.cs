@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 using ConvexHull;
+using System.Diagnostics;
 
 namespace ConverHull
 {
@@ -40,33 +41,63 @@ namespace ConverHull
 
         static void Main(string[] args)
         {
+            ConvexHullAlgorithmMultithread Charlie;
             List<PointF> S = new List<PointF>();
-            int pointLimit = 100;
+            int pointLimit = 1000000;
+            Stopwatch stopwatch = new Stopwatch();
 
             //pointLimit = Convert.ToInt32(Console.ReadLine());
             //for (int i = 0; i < pointLimit; i++)
             //    S.Add((Point)TypeDescriptor.GetConverter(typeof(Point)).ConvertFromString(Console.ReadLine()));          
 
-            S = generatePoints(pointLimit, 1000000);
+            S = generatePoints(pointLimit, 1000000000);
+
+            Console.WriteLine("The War begins!");
+            stopwatch.Start();
 
 
-            ConvexHullAlgorithmMultithread Charlie = new ConvexHullAlgorithmMultithread(S);
 
-            Charlie.Compute();
-
-            
-
-            S = Charlie.OutputPoints;
-
-            printS(S);
+            Charlie = new ConvexHullAlgorithmMultithread(S, 1);
+            Charlie.run();
 
 
-            Console.Write("\n\nPress any key to exit ...");
+            //printS(Charlie.OutputPoints);
+            TimeSpan lastTime = stopwatch.Elapsed;
+            Console.WriteLine("Time elapsed for single thread : {0}", stopwatch.Elapsed);
+
+
+
+            Charlie = new ConvexHullAlgorithmMultithread(S, 2);
+            Charlie.run();
+
+
+            //printS(Charlie.OutputPoints);
+            Console.WriteLine("Time elapsed for two threads: {0}", stopwatch.Elapsed - lastTime);
+
+
+
+            //List<int> A = new List<int>();
+
+            //int N = 6;
+
+            //for (int i = 1; i <= N ;i++ )
+            //{
+            //    A.Add(i);
+            //}
+
+
+            //foreach(var x in A.GetRange(0, 2))
+            //{
+            //    Console.WriteLine(x + " ");
+            //}
+
+                Console.Write("\n\nPress any key to exit ...");
             Console.ReadLine();
         }
 
         static void printS(List<PointF> S)
         {
+            Console.WriteLine(Environment.NewLine);
             System.IO.File.WriteAllText("D:/points.txt", " ");
             for (int i = 0; i < S.Count; i++)
             {
