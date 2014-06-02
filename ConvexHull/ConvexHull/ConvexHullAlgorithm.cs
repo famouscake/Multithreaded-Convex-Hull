@@ -21,7 +21,7 @@ namespace ConvexHull
             }
         }
 
-        static public void Compute(List<PointF> Points)
+        static public List<PointF> Compute(List<PointF> Points)
         {
             Points.Sort(delegate(PointF a, PointF b) { return a.X.CompareTo(b.X); });
 
@@ -44,6 +44,7 @@ namespace ConvexHull
                 x = x.next;
             } while (x != start);
 
+            return newPoints;
         }
 
         // orientation -1 : for vectors counterclockwise of a->b 
@@ -51,7 +52,7 @@ namespace ConvexHull
 
         // To see if a->b is a tangent we must see in all the points of U lie on either of the half planes defined by a->b
         // We use the Z coordinate of a->b and a->c cross product. We require all for points of U that to be > 0 (unless a->c is counterclockwise to a->b)
-        public static bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int orientation)
+        static private bool isTangent(HullPoint a, HullPoint b, List<HullPoint> U, int orientation)
         {
             for (int i = 0; i < U.Count; i++)            
                 if (Vector.getCrossProductZ(a, b, U[i]) * orientation > 0)
@@ -63,7 +64,7 @@ namespace ConvexHull
         // direction  1 : clockwise
 
         // Simply walk along U in the given direction untill a tangent is found. That is guaranteed to happen!
-        static public HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int orientation)
+        static private HullPoint findTangent(HullPoint a, HullPoint b, List<HullPoint> U, int direction, int orientation)
         {
             while (true)
             {
@@ -73,9 +74,9 @@ namespace ConvexHull
         }
 
         // A is the left Convex Hull B is the right Convex Hull
-        static public List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
+        static private List<HullPoint> combine(List<HullPoint> A, List<HullPoint> B)
         {
-            bool debug = true;
+            bool debug = false;
 
             // The rightmost point in A and the leftmost point in B are origins for the tangent search
             HullPoint rightA = A.Max();

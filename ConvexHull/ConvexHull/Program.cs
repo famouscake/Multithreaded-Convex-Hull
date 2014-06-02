@@ -49,19 +49,21 @@ namespace ConverHull
 
             S = generatePoints(pointLimit, 100000);
 
-            ConvexHullAlgorithm.Compute(S);
+            S = ConvexHullAlgorithm.Compute(S);
+
+            printS(S);
 
 
             Console.Write("\n\nPress any key to exit ...");
             Console.ReadLine();
         }
 
-        static void printS(List<Point> S)
+        static void printS(List<PointF> S)
         {
             System.IO.File.WriteAllText("D:/points.txt", " ");
             for (int i = 0; i < S.Count; i++)
             {
-                //Console.WriteLine(S[i].X + ", " + S[i].Y);
+                Console.WriteLine(S[i].X + ", " + S[i].Y);
                 System.IO.File.AppendAllText("D:/points.txt", S[i].X + ", " + S[i].Y + Environment.NewLine);
 
             }
