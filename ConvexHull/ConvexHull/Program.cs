@@ -87,7 +87,6 @@ namespace ConverHull
             Results.Add(new KeyValuePair<List<PointF>, string>(HullPoint.HullPointsToPoints(Charlie.OutputPoints), "One Thread"));
 
 
-
             // TEST 2 : 2 THREADS
             Charlie = new ConvexHullAlgorithmMultithread(Input, 2);
             Charlie.run();
@@ -100,9 +99,6 @@ namespace ConverHull
             Charlie.run();
             T.Add(stopwatch.Elapsed);
             Results.Add(new KeyValuePair<List<PointF>, string>(HullPoint.HullPointsToPoints(Charlie.OutputPoints), "Four Thread"));
-
-
-
 
             for (int i = 0; i < Results.Count; i++)
             {
