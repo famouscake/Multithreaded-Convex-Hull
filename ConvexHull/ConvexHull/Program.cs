@@ -39,8 +39,6 @@ namespace ConverHull
             return U;
         }
 
-
-
         static void Main(string[] args)
         {
             // Mah Nigga
